@@ -334,6 +334,7 @@ def get_log_for_alarm(alarm_name, namespace):
         endTime=int(datetime.now().timestamp()),
         limit=1  # Change the limit according to your requirement
     )
+    print("Start query response: ", start_query_response)
     query_id = start_query_response['queryId']
 
     response = None
