@@ -29,8 +29,8 @@ locals {
   lambda_policy_document_additional_log_group = try({
     sid       = "AllowLogGroup"
     effect    = "Allow"
-    actions   = ["logs:*"]
-    resources = ["${var.log_group}:*"]
+    actions   = ["logs:FilterLogEvents", "logs:Get*", "logs:List*"]
+    resources = ["${var.log_group}"]
   },{})
 
   lambda_handler = try(split(".", basename(var.lambda_source_path))[0], "notify_slack")
