@@ -95,11 +95,22 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
     alarm_name = message["AlarmName"]
 
     alarm_reason = message['NewStateReason']
+    relevant_info = {}
     if LOG_GROUP:
         alarm_reason = get_log_for_alarm(alarm_name)
+        relevant_info = alarm_reason['results'][0][1]['value']
+        relevant_info = {
+            'arn': relevant_info['userIdentity']['arn'],
+            'eventTime': relevant_info['eventTime'],
+            'eventName': relevant_info['eventName'],
+            'sourceIPAddress': relevant_info['sourceIPAddress'],
+            'userAgent': relevant_info['userAgent'],
+            'requestParameters': relevant_info['requestParameters'],
+            'awsRegion': relevant_info['awsRegion']
+        }
 
     return {
-        "color": CloudWatchAlarmState[message["NewStateValue"]].value,
+        # "color": CloudWatchAlarmState[message["NewStateValue"]].value,
         "fallback": f"Alarm {alarm_name} triggered",
         "fields": [
             {"title": "Name", "value": f"`{alarm_name}`", "short": True},
@@ -107,11 +118,6 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
             {
                 "title": "Description",
                 "value": f"`{message['AlarmDescription']}`",
-                "short": False,
-            },
-            {
-                "title": "Reason",
-                "value": f"`{alarm_reason}`",
                 "short": False,
             },
             {
@@ -129,13 +135,9 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
             #     "value": f"`{message['NewStateValue']}`",
             #     "short": True,
             # },
-            {
-                "title": "Link",
-                "value": f"{cloudwatch_url}#alarm:alarmFilter=ANY;name={urllib.parse.quote(alarm_name)}",
-                "short": False,
-            },
-        ],
-        "text": f"AWS CloudWatch notification - {message['AlarmName']}",
+        ]+[{"title": k, "value": f"`{v}`", "short": True} for k, v in relevant_info.items()],
+        "title": f"AWS CloudWatch notification - {message['AlarmName']}",
+        "title_link": f"{cloudwatch_url}#alarm:alarmFilter=ANY;name={urllib.parse.quote(alarm_name)}"
     }
 
 class GuardDutyFindingSeverity(Enum):
