@@ -97,19 +97,9 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
     alarm_reason = message['NewStateReason']
     relevant_info = {}
     if LOG_GROUP:
-        alarm_reason = get_log_for_alarm(alarm_name, message['Trigger']['Namespace'])
         print(message, alarm_reason)
         try:
-            relevant_info = json.loads(alarm_reason['results'][0][1]['value'])
-            # relevant_info = {
-            #     'arn': relevant_info['userIdentity']['arn'],
-            #     'eventTime': relevant_info['eventTime'],
-            #     'eventName': relevant_info['eventName'],
-            #     'sourceIPAddress': relevant_info['sourceIPAddress'],
-            #     'userAgent': relevant_info['userAgent'],
-            #     'requestParameters': relevant_info['requestParameters'],
-            #     'awsRegion': relevant_info['awsRegion']
-            # }
+            relevant_info = get_log_for_alarm(alarm_name, message['Trigger']['Namespace'])
         except Exception as e:
             print("Error parsing result. Defaulting to non-formatting.", e)
 
@@ -327,25 +317,12 @@ def get_log_for_alarm(alarm_name, namespace):
     filterPattern = logs.describe_metric_filters(limit=1,metricName=alarm_name, metricNamespace=namespace)
     filterPattern = filterPattern['metricFilters'][0]['filterPattern']
     print("FilterPattern: ", filterPattern)
-    start_query_response = logs.start_query(
-        logGroupName=LOG_GROUP,
-        queryString=filterPattern,
-        startTime=int((datetime.today() - timedelta(hours=5)).timestamp()),
-        endTime=int(datetime.now().timestamp()),
-        limit=1  # Change the limit according to your requirement
-    )
-    print("Start query response: ", start_query_response)
-    query_id = start_query_response['queryId']
-
-    response = None
-
-    while response == None or response['status'] == 'Running':
-        print('Waiting for query to complete ...')
-        time.sleep(1)
-        response = logs.get_query_results(
-            queryId=query_id
-        )
-    return response
+    return(logs.filter_log_events(
+        limit=1,
+        filterPattern=filterPattern.strip(),
+        startTime=int((datetime.today() - timedelta(minutes=5)).timestamp()),
+        # endTime=int(datetime.now().timestamp()),
+        logGroupName=LOG_GROUP))['events'][0]['message']
 
 def get_slack_message_payload(
     message: Union[str, Dict], region: str, subject: Optional[str] = None
