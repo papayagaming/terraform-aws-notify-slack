@@ -100,16 +100,16 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
         print(alarm_name)
         alarm_reason = get_log_for_alarm(alarm_name, message['Trigger']['Namespace'])
         try:
-            alarm_reason = json.loads(alarm_reason['results'][0][1]['value'])
-            relevant_info = {
-                'arn': relevant_info['userIdentity']['arn'],
-                'eventTime': relevant_info['eventTime'],
-                'eventName': relevant_info['eventName'],
-                'sourceIPAddress': relevant_info['sourceIPAddress'],
-                'userAgent': relevant_info['userAgent'],
-                'requestParameters': relevant_info['requestParameters'],
-                'awsRegion': relevant_info['awsRegion']
-            }
+            relevant_info = json.loads(alarm_reason['results'][0][1]['value'])
+            # relevant_info = {
+            #     'arn': relevant_info['userIdentity']['arn'],
+            #     'eventTime': relevant_info['eventTime'],
+            #     'eventName': relevant_info['eventName'],
+            #     'sourceIPAddress': relevant_info['sourceIPAddress'],
+            #     'userAgent': relevant_info['userAgent'],
+            #     'requestParameters': relevant_info['requestParameters'],
+            #     'awsRegion': relevant_info['awsRegion']
+            # }
         except Exception as e:
             print(e)
 
