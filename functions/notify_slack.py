@@ -320,7 +320,7 @@ def get_log_for_alarm(alarm_name, namespace):
     result = logs.filter_log_events(
         limit=1,
         filterPattern=filterPattern.strip(),
-        startTime=int((datetime.today() - timedelta(minutes=5)).timestamp()),
+        # startTime=int((datetime.today() - timedelta(minutes=5)).timestamp()),
         # endTime=int(datetime.now().timestamp()),
         logGroupName=LOG_GROUP)
     print(result)
