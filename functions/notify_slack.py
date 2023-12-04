@@ -111,7 +111,7 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
             #     'awsRegion': relevant_info['awsRegion']
             # }
         except Exception as e:
-            print(e)
+            print("Error parsing result. Defaulting to non-formatting.", e)
 
     return {
         # "color": CloudWatchAlarmState[message["NewStateValue"]].value,
