@@ -317,12 +317,14 @@ def get_log_for_alarm(alarm_name, namespace):
     filterPattern = logs.describe_metric_filters(limit=1,metricName=alarm_name, metricNamespace=namespace)
     filterPattern = filterPattern['metricFilters'][0]['filterPattern']
     print("FilterPattern: ", filterPattern)
-    return(logs.filter_log_events(
+    result = logs.filter_log_events(
         limit=1,
         filterPattern=filterPattern.strip(),
         startTime=int((datetime.today() - timedelta(minutes=5)).timestamp()),
         # endTime=int(datetime.now().timestamp()),
-        logGroupName=LOG_GROUP))['events'][0]['message']
+        logGroupName=LOG_GROUP)
+    print(result)
+    return result['events'][0]['message']
 
 def get_slack_message_payload(
     message: Union[str, Dict], region: str, subject: Optional[str] = None
