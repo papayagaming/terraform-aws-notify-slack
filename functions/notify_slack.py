@@ -325,8 +325,8 @@ def format_default(
 def get_log_for_alarm(alarm_name, namespace):
     print("Alarm name: ", alarm_name, "Namespace: ", namespace)
     filterPattern = logs.describe_metric_filters(limit=1,metricName=alarm_name, metricNamespace=namespace)
-    print(filterPattern)
     filterPattern = filterPattern['metricFilters'][0]['filterPattern']
+    print("FilterPattern: ", filterPattern)
     start_query_response = logs.start_query(
         logGroupName=LOG_GROUP,
         queryString=filterPattern,
