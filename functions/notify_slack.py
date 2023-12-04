@@ -141,9 +141,9 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
             # },
         ]+[{
                 "title": "Reason",
-                "value": f"`{alarm_reason}`",
+                "value": f"```{json.dumps(json.loads(alarm_reason))}```",
                 "short": False,
-            } if not relevant_info else {}]+[{"title": k, "value": f"`{v}`", "short": True} for k, v in relevant_info.items()],
+            } if relevant_info is {} else {}]+[{"title": k, "value": f"`{v}`", "short": True} for k, v in relevant_info.items()],
         "title": f"AWS CloudWatch notification - {message['AlarmName']}",
         "title_link": f"{cloudwatch_url}#alarm:alarmFilter=ANY;name={urllib.parse.quote(alarm_name)}"
     }
