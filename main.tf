@@ -30,7 +30,7 @@ locals {
     sid       = "AllowLogGroup"
     effect    = "Allow"
     actions   = ["logs:FilterLogEvents", "logs:Get*", "logs:List*", "logs:Describe*"]
-    resources = [replace("${try(var.log_group_arn, "")}:*", ":*:*", ":*")]
+    resources = [replace("${try(var.log_group_arn, "")}:*", ":*:*", ":*"),"arn:aws:logs:*:*:log-group:null:log-stream"]
   },{})
 
   lambda_handler = try(split(".", basename(var.lambda_source_path))[0], "notify_slack")
