@@ -98,7 +98,7 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
     relevant_info = {}
     if LOG_GROUP:
         print(alarm_name)
-        alarm_reason = get_log_for_alarm(alarm_name)
+        alarm_reason = get_log_for_alarm(alarm_name, message['Trigger']['Namespace'])
         try:
             alarm_reason = json.loads(alarm_reason['results'][0][1]['value'])
             relevant_info = {
@@ -322,8 +322,8 @@ def format_default(
 
     return attachments
 
-def get_log_for_alarm(alarm_name):
-    filterPattern = logs.describe_metric_filters(limit=1,metricName=alarm_name, metricNamespace='CISBenchmark')
+def get_log_for_alarm(alarm_name, namespace):
+    filterPattern = logs.describe_metric_filters(limit=1,metricName=alarm_name, metricNamespace=namespace)
     print(filterPattern)
     filterPattern = filterPattern['metricFilters'][0]['filterPattern']
     start_query_response = logs.start_query(
