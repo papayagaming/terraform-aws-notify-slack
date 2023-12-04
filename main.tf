@@ -29,7 +29,7 @@ locals {
   lambda_policy_document_additional_log_group = try({
     sid       = "AllowLogGroup"
     effect    = "Allow"
-    actions   = ["logs:FilterLogEvents", "logs:Get*", "logs:List*"]
+    actions   = ["logs:FilterLogEvents", "logs:Get*", "logs:List*", "logs:Describe*"]
     resources = [replace("${try(var.log_group_arn, "")}:*", ":*:*", ":*")]
   },{})
 
