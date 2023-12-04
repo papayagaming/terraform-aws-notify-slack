@@ -101,7 +101,7 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
         "fallback": f"Alarm {alarm_name} triggered",
         "fields": [
             {"title": "Name", "value": f"`{alarm_name}`", "short": True},
-            {"title": "Account", "value": f"`{boto3.client('sts').get_caller_identity().get('Account')}`", "short": True},
+            {"title": "Account", "value": f"`{message['AWSAccountId']}`", "short": True},
             {
                 "title": "Description",
                 "value": f"`{message['AlarmDescription']}`",
@@ -310,7 +310,7 @@ def get_log_for_alarm(alarm_name):
     # Get the logs associated with the alarm
     log_events = logs.filter_log_events(
         logGroupName=LOG_GROUP,
-        filterPattern=alarm_name,
+        filterPattern='{{ $.requestParameters.alarmNames[0] = "{}" }}'.format(alarm_name),
         limit=1  # Change the limit according to your requirement
     )
 
