@@ -26,12 +26,19 @@ locals {
     resources = [var.kms_key_arn]
   }
 
+  lambda_policy_describe_metrics = {
+    sid       = "AllowDescribeMetrics"
+    effect    = "Allow"
+    actions   = ["logs:Describe*"]
+    resources = ["*"]
+  }
+
   lambda_policy_document_additional_log_group = try({
     sid       = "AllowLogGroup"
     effect    = "Allow"
-    actions   = ["logs:FilterLogEvents", "logs:Get*", "logs:List*", "logs:Describe*"]
-    resources = [replace("${try(var.log_group_arn, "")}:*", ":*:*", ":*"),"arn:aws:logs:*:*:log-group:null:log-stream"]
-  },{})
+    actions   = ["logs:FilterLogEvents", "logs:Get*", "logs:List*"]
+    resources = [replace("${try(var.log_group_arn, "")}:*", ":*:*", ":*")]
+  }, {})
 
   lambda_handler = try(split(".", basename(var.lambda_source_path))[0], "notify_slack")
 }
@@ -40,7 +47,7 @@ data "aws_iam_policy_document" "lambda" {
   count = var.create ? 1 : 0
 
   dynamic "statement" {
-    for_each = concat([local.lambda_policy_document, local.lambda_policy_document_additional_log_group], var.kms_key_arn != "" ? [local.lambda_policy_document_kms] : [])
+    for_each = concat([local.lambda_policy_document, local.lambda_policy_document_additional_log_group, lambda_policy_describe_metrics], var.kms_key_arn != "" ? [local.lambda_policy_document_kms] : [])
     content {
       sid       = statement.value.sid
       effect    = statement.value.effect
