@@ -329,6 +329,8 @@ def get_log_for_alarm(alarm_name, namespace):
     start_query_response = logs.start_query(
         logGroupName=LOG_GROUP,
         queryString=filterPattern,
+        startTime=int((datetime.today() - timedelta(hours=5)).timestamp()),
+        endTime=int(datetime.now().timestamp()),
         limit=1  # Change the limit according to your requirement
     )
     query_id = start_query_response['queryId']
