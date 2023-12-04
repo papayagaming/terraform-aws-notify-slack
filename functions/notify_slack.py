@@ -16,6 +16,8 @@ import urllib.request
 from enum import Enum
 from typing import Any, Dict, Optional, Union, cast
 from urllib.error import HTTPError
+from datetime import datetime, timedelta
+import time
 
 import boto3
 
@@ -105,6 +107,11 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
             {
                 "title": "Description",
                 "value": f"`{message['AlarmDescription']}`",
+                "short": False,
+            },
+            {
+                "title": "Reason",
+                "value": f"`{alarm_reason}`",
                 "short": False,
             },
             {
@@ -306,16 +313,25 @@ def format_default(
     return attachments
 
 def get_log_for_alarm(alarm_name):
-    
-    # Get the logs associated with the alarm
-    log_events = logs.filter_log_events(
+    filterPattern = logs.describe_metric_filters(limit=1,metricName=alarm_name, metricNamespace='CISBenchmark')['metricFilters'][0]['filterPattern']
+    start_query_response = logs.start_query(
         logGroupName=LOG_GROUP,
-        filterPattern='{{ $.requestParameters.alarmNames[0] = "{}" }}'.format(alarm_name),
+        queryString=filterPattern,
+        startTime=int((datetime.today() - timedelta(minutes=5)).timestamp()),
+        endTime=int(datetime.now().timestamp()),
         limit=1  # Change the limit according to your requirement
     )
+    query_id = start_query_response['queryId']
 
-    # Print the log events
-    return log_events['events']
+    response = None
+
+    while response == None or response['status'] == 'Running':
+        print('Waiting for query to complete ...')
+        time.sleep(1)
+        response = logs.get_query_results(
+            queryId=query_id
+        )
+    return response
 
 def get_slack_message_payload(
     message: Union[str, Dict], region: str, subject: Optional[str] = None
