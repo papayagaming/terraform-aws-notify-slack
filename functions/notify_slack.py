@@ -97,8 +97,8 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
     alarm_reason = message['NewStateReason']
     relevant_info = {}
     if LOG_GROUP:
+        print(alarm_name)
         alarm_reason = get_log_for_alarm(alarm_name)
-        print(alarm_reason)
         try:
             alarm_reason = json.loads(alarm_reason['results'][0][1]['value'])
             relevant_info = {
