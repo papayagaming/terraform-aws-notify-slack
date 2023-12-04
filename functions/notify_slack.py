@@ -323,6 +323,7 @@ def format_default(
     return attachments
 
 def get_log_for_alarm(alarm_name):
+    print(logs.describe_metric_filters(limit=1,metricName=alarm_name, metricNamespace='CISBenchmark'))
     filterPattern = logs.describe_metric_filters(limit=1,metricName=alarm_name, metricNamespace='CISBenchmark')['metricFilters'][0]['filterPattern']
     start_query_response = logs.start_query(
         logGroupName=LOG_GROUP,
