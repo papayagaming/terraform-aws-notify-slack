@@ -30,7 +30,7 @@ locals {
     sid       = "AllowLogGroup"
     effect    = "Allow"
     actions   = ["logs:*"]
-    resources = [replace("${try(var.log_group, "")}:*", ":*:*", ":*")]
+    resources = ["${var.log_group}:*"]
   },{})
 
   lambda_handler = try(split(".", basename(var.lambda_source_path))[0], "notify_slack")
