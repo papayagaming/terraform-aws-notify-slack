@@ -269,3 +269,9 @@ variable "subscription_filter_policy_scope" {
   type        = string
   default     = null
 }
+
+variable "log_group" {
+  description = "(Optional) A log group to enrich slack messeges with events in case of alarm"
+  type        = string
+  default     = null
+}

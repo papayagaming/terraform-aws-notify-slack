@@ -25,6 +25,11 @@ REGION = os.environ.get("AWS_REGION", "us-east-1")
 # Create client so its cached/frozen between invocations
 KMS_CLIENT = boto3.client("kms", region_name=REGION)
 
+# Get the log group name in case of verbose logging
+LOG_GROUP = os.environ.get("LOG_GROUP", None)
+
+# Create CloudWatch logs client
+logs = boto3.client('logs')
 
 class AwsService(Enum):
     """AWS service supported by function"""
@@ -87,6 +92,10 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
     cloudwatch_url = get_service_url(region=region, service="cloudwatch")
     alarm_name = message["AlarmName"]
 
+    alarm_reason = message['NewStateReason']
+    if LOG_GROUP:
+        alarm_reason = get_log_for_alarm(alarm_name)
+
     return {
         "color": CloudWatchAlarmState[message["NewStateValue"]].value,
         "fallback": f"Alarm {alarm_name} triggered",
@@ -99,19 +108,19 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
             },
             {
                 "title": "Alarm reason",
-                "value": f"`{message['NewStateReason']}`",
+                "value": f"`{alarm_reason}`",
                 "short": False,
             },
-            {
-                "title": "Old State",
-                "value": f"`{message['OldStateValue']}`",
-                "short": True,
-            },
-            {
-                "title": "Current State",
-                "value": f"`{message['NewStateValue']}`",
-                "short": True,
-            },
+            # {
+            #     "title": "Old State",
+            #     "value": f"`{message['OldStateValue']}`",
+            #     "short": True,
+            # },
+            # {
+            #     "title": "Current State",
+            #     "value": f"`{message['NewStateValue']}`",
+            #     "short": True,
+            # },
             {
                 "title": "Link to Alarm",
                 "value": f"{cloudwatch_url}#alarm:alarmFilter=ANY;name={urllib.parse.quote(alarm_name)}",
@@ -120,7 +129,6 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
         ],
         "text": f"AWS CloudWatch notification - {message['AlarmName']}",
     }
-
 
 class GuardDutyFindingSeverity(Enum):
     """Maps GuardDuty finding severity to Slack message format color"""
@@ -296,6 +304,17 @@ def format_default(
 
     return attachments
 
+def get_log_for_alarm(alarm_name):
+    
+    # Get the logs associated with the alarm
+    log_events = logs.filter_log_events(
+        logGroupName=LOG_GROUP,
+        filterPattern=alarm_name,
+        limit=1  # Change the limit according to your requirement
+    )
+
+    # Print the log events
+    return log_events['events']
 
 def get_slack_message_payload(
     message: Union[str, Dict], region: str, subject: Optional[str] = None
