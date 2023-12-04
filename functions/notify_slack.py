@@ -100,14 +100,15 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
         "color": CloudWatchAlarmState[message["NewStateValue"]].value,
         "fallback": f"Alarm {alarm_name} triggered",
         "fields": [
-            {"title": "Alarm Name", "value": f"`{alarm_name}`", "short": True},
+            {"title": "Name", "value": f"`{alarm_name}`", "short": True},
+            {"title": "Account", "value": f"`{boto3.client('sts').get_caller_identity().get('Account')}`", "short": True},
             {
-                "title": "Alarm Description",
+                "title": "Description",
                 "value": f"`{message['AlarmDescription']}`",
                 "short": False,
             },
             {
-                "title": "Alarm reason",
+                "title": "Reason",
                 "value": f"`{alarm_reason}`",
                 "short": False,
             },
@@ -122,7 +123,7 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
             #     "short": True,
             # },
             {
-                "title": "Link to Alarm",
+                "title": "Link",
                 "value": f"{cloudwatch_url}#alarm:alarmFilter=ANY;name={urllib.parse.quote(alarm_name)}",
                 "short": False,
             },
