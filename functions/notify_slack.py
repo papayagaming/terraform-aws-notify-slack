@@ -99,7 +99,7 @@ def format_cloudwatch_alarm(message: Dict[str, Any], region: str) -> Dict[str, A
     if LOG_GROUP:
         print(message, alarm_reason)
         try:
-            relevant_info = get_log_for_alarm(alarm_name, message['Trigger']['Namespace'])
+            relevant_info = json.loads(get_log_for_alarm(alarm_name, message['Trigger']['Namespace']))
         except Exception as e:
             print("Error parsing result. Defaulting to non-formatting.", e)
 
