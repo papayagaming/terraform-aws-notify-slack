@@ -271,7 +271,13 @@ variable "subscription_filter_policy_scope" {
 }
 
 variable "log_group" {
-  description = "(Optional) A log group to enrich slack messeges with events in case of alarm"
+  description = "(Optional) A log group Name to enrich slack messeges with events in case of alarm"
+  type        = string
+  default     = null
+}
+
+variable "log_group_arn" {
+  description = "(Optional) A log group ARN to enrich slack messeges with events in case of alarm"
   type        = string
   default     = null
 }

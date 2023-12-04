@@ -1,10 +1,6 @@
 data "aws_caller_identity" "current" {}
 data "aws_partition" "current" {}
 data "aws_region" "current" {}
-data "aws_cloudwatch_log_group" "external_log_group" {
-  count = var.log_group != null ? 1 : 0
-  name = var.log_group
-}
 
 locals {
   create = var.create && var.putin_khuylo
@@ -34,7 +30,7 @@ locals {
     sid       = "AllowLogGroup"
     effect    = "Allow"
     actions   = ["logs:FilterLogEvents", "logs:Get*", "logs:List*"]
-    resources = [replace("${try(data.aws_cloudwatch_log_group.external_log_group[0].arn, "")}:*", ":*:*", ":*")]
+    resources = [replace("${try(var.log_group_arn, "")}:*", ":*:*", ":*")]
   },{})
 
   lambda_handler = try(split(".", basename(var.lambda_source_path))[0], "notify_slack")
