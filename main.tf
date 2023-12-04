@@ -47,7 +47,7 @@ data "aws_iam_policy_document" "lambda" {
   count = var.create ? 1 : 0
 
   dynamic "statement" {
-    for_each = concat([local.lambda_policy_document, local.lambda_policy_document_additional_log_group, lambda_policy_describe_metrics], var.kms_key_arn != "" ? [local.lambda_policy_document_kms] : [])
+    for_each = concat([local.lambda_policy_document, local.lambda_policy_document_additional_log_group, local.lambda_policy_describe_metrics], var.kms_key_arn != "" ? [local.lambda_policy_document_kms] : [])
     content {
       sid       = statement.value.sid
       effect    = statement.value.effect
