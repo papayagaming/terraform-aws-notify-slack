@@ -27,16 +27,23 @@ locals {
   }
 
   lambda_policy_describe_metrics = {
-    sid       = "AllowDescribeMetrics"
-    effect    = "Allow"
-    actions   = ["logs:Describe*"]
+    sid    = "AllowDescribeMetrics"
+    effect = "Allow"
+    actions = [
+      "logs:Describe*",
+      "logs:TestMetricFilter",
+      "cloudwatch:GenerateQuery"
+    ]
     resources = ["*"]
   }
 
   lambda_policy_document_additional_log_group = try({
-    sid       = "AllowLogGroup"
-    effect    = "Allow"
-    actions   = ["logs:FilterLogEvents", "logs:Get*", "logs:List*"]
+    sid    = "AllowLogGroup"
+    effect = "Allow"
+    actions = ["logs:FilterLogEvents", "logs:Get*", "logs:List*",
+      "logs:StartQuery",
+      "logs:StopQuery",
+    ]
     resources = [replace("${try(var.log_group_arn, "")}:*", ":*:*", ":*")]
   }, {})
 
