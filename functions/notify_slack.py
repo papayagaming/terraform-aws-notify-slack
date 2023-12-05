@@ -314,7 +314,7 @@ def format_default(
 
 def get_log_for_alarm(alarm_name, namespace):
     print("Alarm name: ", alarm_name, "Namespace: ", namespace)
-    filterPattern = logs.describe_metric_filters(limit=1,metricName=alarm_name, metricNamespace=namespace)
+    filterPattern = logs.describe_metric_filters(limit=50,metricName=alarm_name, metricNamespace=namespace)
     filterPattern = filterPattern['metricFilters'][0]['filterPattern']
     print("FilterPattern: ", filterPattern)
     result = logs.filter_log_events(
